@@ -3,9 +3,19 @@ name: Inject Path Log
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
+
+# DEZE SECTIE IS CRUCIAAL:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps:deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -13,14 +23,17 @@ jobs:
 
       - name: Inject Code in JS files
         run: |
-          # Dit zoekt alle .js bestanden en zet de log bovenaan
-          # We gebruiken 'import.meta.url' om het exacte bestandspad te krijgen
-          find . -type f -name "*.js" -exec sed -i '1i console.log("Bestand geladen: " + import.meta.url);' {} +
+          # Injecteer de console log bovenaan elk JS bestand
+          find . -type d -path './.git' -prune -o -type f -name "*.js" -exec sed -i '1i console.log("Bestand geladen: " + import.meta.url);' {} +
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.' # Upload de hele repo (met de aangepaste JS)
+          path: '.'
 
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4

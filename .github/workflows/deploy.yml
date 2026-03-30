@@ -1,0 +1,26 @@
+name: Inject Path Log
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject Code in JS files
+        run: |
+          # Dit zoekt alle .js bestanden en zet de log bovenaan
+          # We gebruiken 'import.meta.url' om het exacte bestandspad te krijgen
+          find . -type f -name "*.js" -exec sed -i '1i console.log("Bestand geladen: " + import.meta.url);' {} +
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' # Upload de hele repo (met de aangepaste JS)
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

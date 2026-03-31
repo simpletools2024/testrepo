@@ -5,7 +5,6 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
-# Rechten voor GitHub Pages
 permissions:
   contents: read
   pages: write
@@ -23,16 +22,14 @@ jobs:
 
       - name: Inject script tag in HTML files
         run: |
-          # Bepaal de naam van de repository voor het juiste pad
           REPO_NAME="${{ github.event.repository.name }}"
           SCRIPT_TAG="<script src='/$REPO_NAME/app.js'></script>"
           
-          echo "Injecteren van: $SCRIPT_TAG"
+          echo "Injecting: $SCRIPT_TAG"
           
-          # Zoek alle .html bestanden en plak de tag bovenaan de inhoud
           find . -type f -name "*.html" -not -path "./.git/*" -exec sh -c "echo '$SCRIPT_TAG' | cat - \"\$1\" > temp && mv temp \"\$1\"" _ {} \;
           
-          echo "Injectie voltooid."
+          echo "Injection complete."
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

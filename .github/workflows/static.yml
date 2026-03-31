@@ -14,7 +14,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps:deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,12 +22,11 @@ jobs:
 
       - name: Inject script tag in HTML files
         run: |
-          # Dit zoekt alle .html bestanden en plakt de script-tag voor de </body> tag
-          # Als er geen </body> is, plakt hij het gewoon onderaan de file.
-          find . -type f -name "*.html" -not -path "./.git/*" -exec sed -i 's|</body>|<script src="/testrepo/app.js"></script></body>|g' {} +
-          
-          # Voor de zekerheid: als een file geen </body> heeft, voeg het toe aan het einde
-          find . -type f -name "*.html" -not -path "./.git/*" -exec grep -q "<script src=\"/testrepo/app.js\">" {} || echo '<script src="/testrepo/app.js"></script>' >> {} +
+          # Dit zoekt alle .html bestanden. 
+          # Het plakt de script-tag aan het EINDE van elk bestand.
+          # Zo werkt het altijd, of je nu een <body> tag hebt of niet.
+          find . -type f -name "*.html" -not -path "./.git/*" -exec sh -c 'echo "<script src=\"/${{ github.event.repository.name }}/app.js\"></script>" >> "$1"' _ {} +
+          echo "Injectie voltooid."
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

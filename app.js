@@ -1,10 +1,8 @@
 try {
-  const isInIframe = window.self !== window.top;
-  const isOnExactTestRepo = window.location.pathname === "/testrepo/";
+    const isInIframe = window.self !== window.top;
+    const isOnExactTestRepo = window.location.pathname === "/";
 
-  if (!isInIframe && !isOnExactTestRepo) {
-    window.location.href = "/testrepo/";
-  }
-} catch (e) {
-  // Als error → zit in iframe → niks doen
-}
+    if (!isInIframe && !isOnExactTestRepo) {
+        window.location.href = "/";
+    }
+} catch (e) {}

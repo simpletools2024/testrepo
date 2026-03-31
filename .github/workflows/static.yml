@@ -5,6 +5,7 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+# Rechten voor GitHub Pages
 permissions:
   contents: read
   pages: write
@@ -22,10 +23,15 @@ jobs:
 
       - name: Inject script tag in HTML files
         run: |
-          # Dit zoekt alle .html bestanden. 
-          # Het plakt de script-tag aan het EINDE van elk bestand.
-          # Zo werkt het altijd, of je nu een <body> tag hebt of niet.
-          find . -type f -name "*.html" -not -path "./.git/*" -exec sh -c 'echo "<script src=\"/${{ github.event.repository.name }}/app.js\"></script>" >> "$1"' _ {} +
+          # Bepaal de naam van de repository voor het juiste pad
+          REPO_NAME="${{ github.event.repository.name }}"
+          SCRIPT_TAG="<script src='/$REPO_NAME/app.js'></script>"
+          
+          echo "Injecteren van: $SCRIPT_TAG"
+          
+          # Zoek alle .html bestanden en plak de tag bovenaan de inhoud
+          find . -type f -name "*.html" -not -path "./.git/*" -exec sh -c "echo '$SCRIPT_TAG' | cat - \"\$1\" > temp && mv temp \"\$1\"" _ {} \;
+          
           echo "Injectie voltooid."
 
       - name: Setup Pages

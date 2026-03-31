@@ -1,2 +1,4 @@
-console.log("Systeem actief op pad: " + window.location.pathname);
-// Je kunt hier alles zetten wat je wilt dat op elke pagina draait.
+// app.js
+console.log("APP.JS IS GELADEN!");
+alert("Injectie werkt op: " + window.location.pathname);
+document.body.style.backgroundColor = "yellow";

@@ -1,11 +1,10 @@
-name: Inject Path Log
+name: Inject AppJS and Deploy
 
 on:
   push:
     branches: ["main"]
   workflow_dispatch:
 
-# DEZE SECTIE IS CRUCIAAL:
 permissions:
   contents: read
   pages: write
@@ -21,10 +20,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject Code in JS files
+      - name: Inject script tag in HTML files
         run: |
-          # Injecteer de console log bovenaan elk JS bestand
-          find . -type d -path './.git' -prune -o -type f -name "*.js" -exec sed -i '1i console.log("Bestand geladen: " + import.meta.url);' {} +
+          # Dit zoekt alle .html bestanden en plakt de script-tag voor de </body> tag
+          # Als er geen </body> is, plakt hij het gewoon onderaan de file.
+          find . -type f -name "*.html" -not -path "./.git/*" -exec sed -i 's|</body>|<script src="/testrepo/app.js"></script></body>|g' {} +
+          
+          # Voor de zekerheid: als een file geen </body> heeft, voeg het toe aan het einde
+          find . -type f -name "*.html" -not -path "./.git/*" -exec grep -q "<script src=\"/testrepo/app.js\">" {} || echo '<script src="/testrepo/app.js"></script>' >> {} +
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
